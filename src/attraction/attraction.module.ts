@@ -4,6 +4,7 @@ import { AttractionService } from './attraction.service';
 import { AttractionResolver } from './attraction.resolver';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Attraction, AttractionSchema } from './attraction.schema';
+import { GoogleMapsService } from 'src/googleMaps/google_maps.service';
 
 @Module({
   controllers: [AttractionController],
@@ -12,6 +13,6 @@ import { Attraction, AttractionSchema } from './attraction.schema';
       { name: Attraction.name, schema: AttractionSchema },
     ]),
   ],
-  providers: [AttractionService, AttractionResolver],
+  providers: [AttractionService, AttractionResolver, GoogleMapsService],
 })
 export class AttractionModule {}
