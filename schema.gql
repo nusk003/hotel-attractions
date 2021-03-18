@@ -1,0 +1,23 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Attraction {
+  id: String!
+  name: String!
+  formatted_address: String!
+}
+
+type Query {
+  getAttractions: [Attraction!]!
+}
+
+type Mutation {
+  createAttraction(input: CreateAttrationInput!): Attraction!
+}
+
+input CreateAttrationInput {
+  id: String!
+  name: String!
+  formatted_address: String!
+}
