@@ -2,22 +2,78 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type Attraction {
+type Coordinate {
+  latitude: Float!
+  longitude: Float!
+}
+
+type Hotel {
   id: String!
   name: String!
-  formatted_address: String!
+  coordinate: Coordinate!
+}
+
+type PlaceDto {
+  id: String!
+  name: String!
+  address: String!
+  notes: [String!]!
+  cordinate: Coordinate!
+  photos: [String!]!
+}
+
+type CategoryDto {
+  name: String!
+  keywords: [String!]!
+}
+
+type CategoryPlaceDto {
+  category: CategoryDto!
+  places: [PlaceDto!]!
+}
+
+type CatalogDto {
+  categories: [CategoryPlaceDto!]
+  name: String!
+}
+
+type AttractionsDto {
+  _id: String!
+  hotel: Hotel!
+  name: String!
+  catalog: CatalogDto
 }
 
 type Query {
-  getAttractions: [Attraction!]!
+  getAttractions(hotel_id: String!): AttractionsDto!
+  getCategories: [CategoryDto!]!
 }
 
 type Mutation {
-  createAttraction(input: CreateAttrationInput!): Attraction!
+  createHotel(input: CreateAttractionsDto!): AttractionsDto!
+  createCategory(input: CreateCategoryDto!): CategoryDto!
+  generateAttractions(hotel_id: String!): AttractionsDto!
+  addKeywordToCategory(keywords: String!, categoryName: String!): CategoryDto!
+  updateAttractions(note: String!, category: String!, hotel_id: String!, place_id: String!): AttractionsDto!
+  generateAttractionsM2(hotel_id: String!): AttractionsDto!
 }
 
-input CreateAttrationInput {
+input CreateAttractionsDto {
+  hotel: CreateHotelDto!
+}
+
+input CreateHotelDto {
   id: String!
   name: String!
-  formatted_address: String!
+  coordinate: CreateCoordinateInput!
+}
+
+input CreateCoordinateInput {
+  latitude: Float!
+  longitude: Float!
+}
+
+input CreateCategoryDto {
+  name: String!
+  keywords: [String!]!
 }
