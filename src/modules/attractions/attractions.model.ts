@@ -65,8 +65,8 @@ export class Attractions {
   @Prop(() => Hotel)
   hotel: Hotel;
 
-  @Prop(() => CatalogDto)
-  catalog: CatalogDto;
+  @Prop({type : mongoose.Schema.Types.ObjectId,ref : "Catalog"})
+  catalog: Catalog;
 
   @Prop()
   test: string;

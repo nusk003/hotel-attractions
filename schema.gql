@@ -22,6 +22,11 @@ type PlaceDto {
   photos: [String!]!
 }
 
+type AutoCompleteDto {
+  place_id: String!
+  description: String!
+}
+
 type CategoryDto {
   name: String!
   keywords: [String!]!
@@ -47,6 +52,8 @@ type AttractionsDto {
 type Query {
   getAttractions(hotel_id: String!): AttractionsDto!
   getCategories: [CategoryDto!]!
+  getAutocomplete(query: String!): [AutoCompleteDto!]!
+  getPlaceDetails(place_id: String!): PlaceDto!
 }
 
 type Mutation {
@@ -54,6 +61,7 @@ type Mutation {
   createCategory(input: CreateCategoryDto!): CategoryDto!
   generateAttractions(hotel_id: String!): AttractionsDto!
   addKeywordToCategory(keywords: String!, categoryName: String!): CategoryDto!
+  addCustomAttraction(category: String!, hotel_id: String!): AttractionsDto!
   updateAttractions(note: String!, category: String!, hotel_id: String!, place_id: String!): AttractionsDto!
   generateAttractionsM2(hotel_id: String!): AttractionsDto!
 }

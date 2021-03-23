@@ -7,9 +7,9 @@ import {
   CategoryPlaceDto,
   CreateCategoryDto,
   CategoryDto,
+  AutoCompleteDto,
 } from './dto';
 import { PlacesAdapter } from './attractions.adapter';
-import { string } from 'prop-types';
 
 @Resolver()
 export class AttractionsResolver {
@@ -79,6 +79,24 @@ export class AttractionsResolver {
     // }
 
     return this.attractionsService.updateCategory(categoryName, { keywords });
+  }
+
+  @Query(() => [AutoCompleteDto])
+  async getAutocomplete(@Args('query') query: string) {
+    return this.placesService.getPlacesAutoComplete(query);
+  }
+
+  @Query(() => PlaceDto)
+  async getPlaceDetails(@Args('place_id') place_id: string) {
+    return this.placesService.getPlaceDetails(place_id);
+  }
+
+  @Mutation(() => AttractionsDto)
+  async addCustomAttraction(
+    @Args('hotel_id') hotel_id: string,
+    @Args('category') categoryName: string,
+  ) {
+    const attraction = await this.attractionsService.getAttractions(hotel_id);
   }
 
   @Mutation(() => AttractionsDto)

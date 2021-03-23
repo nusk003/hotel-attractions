@@ -1,16 +1,26 @@
 import {
   Client,
   PlaceDetailsRequest,
+  PlaceAutocompleteType,
+  PlaceDetailsResponse,
 } from '@googlemaps/google-maps-services-js';
 import { Coordinate } from 'src/helper/dto';
 import { groupByArray } from 'src/helper/functions';
-import { PlaceDto, CategoryPlaceDto, CategoryDto } from './dto';
+import {
+  PlaceDto,
+  CategoryPlaceDto,
+  CategoryDto,
+  AutoCompleteDto,
+} from './dto';
+import { geocode } from '@googlemaps/google-maps-services-js/dist/geocode/geocode';
+import { PlaceDetailsResponseData } from '@googlemaps/google-maps-services-js/dist/places/details';
 
 export class PlacesAdapter {
   client: Client;
-
+  private key: string;
   constructor() {
     this.client = new Client({});
+    this.key = 'AIzaSyCBAfZCHkLTv5teXFKrzlnUBDcMyxhHuoU';
   }
 
   async getPlacesByCordinate(
@@ -19,10 +29,11 @@ export class PlacesAdapter {
   ) {
     const places = await this.client.placesNearby({
       params: {
-        key: 'AIzaSyCBAfZCHkLTv5teXFKrzlnUBDcMyxhHuoU',
+        key: this.key,
         location: `${latitude},${longitude}`,
         radius: 1500,
         type: category,
+        // rankby : "prominence"
       },
       method: 'GET',
     });
@@ -53,7 +64,48 @@ export class PlacesAdapter {
     };
   };
 
-  async getPlacesAutoComplete() {}
+  async getPlacesAutoComplete(input: string) {
+    const results = await this.client.placeAutocomplete({
+      params: {
+        input,
+        key: this.key,
+        types: PlaceAutocompleteType.establishment,
+      },
+    });
+
+    return results.data.predictions;
+  }
+
+  convertAutoCompleteToPlaceDto({
+    formatted_address,
+    place_id,
+    name,
+    geometry,
+  }: any): PlaceDto {
+    const { lat, lng } = geometry.location;
+    return {
+      address: formatted_address,
+      id: place_id,
+      name,
+      notes: [],
+      cordinate: {
+        latitude: lat,
+        longitude: lng,
+      },
+      photos: [],
+    };
+  }
+
+  async getPlaceDetails(place_id: string) {
+    const result = await this.client.placeDetails({
+      params: {
+        key: this.key,
+        place_id,
+      },
+    });
+
+    return this.convertAutoCompleteToPlaceDto(result.data.result);
+  }
 
   async getPlacesByCategories(
     coordinate: Coordinate,

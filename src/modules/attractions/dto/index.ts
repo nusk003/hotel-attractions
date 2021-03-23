@@ -36,6 +36,15 @@ export class PlaceDto {
 }
 
 @ObjectType()
+export class AutoCompleteDto {
+  @Field()
+  place_id: string;
+
+  @Field()
+  description: string;
+}
+
+@ObjectType()
 export class CategoryDto {
   @Field()
   name: string;
