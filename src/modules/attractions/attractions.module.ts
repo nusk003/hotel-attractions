@@ -1,24 +1,11 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AttractionsResolver } from './attractions.resolver';
 import { AttractionsService } from './attractions.service';
-import { MongooseModule } from '@nestjs/mongoose';
-import {
-  Attractions,
-  CategorySchema,
-  Catalog,
-  CatalogSchema,
-  Category,
-  AttractionsSchema,
-} from './attractions.model';
+import { MikroOrmModule } from '@mikro-orm/nestjs';
+import { Attractions, Hotel } from './attractions.entity';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([
-      { name: Catalog.name, schema: CatalogSchema },
-      { name: Attractions.name, schema: AttractionsSchema },
-      { name: Category.name, schema: CategorySchema },
-    ]),
-  ],
+  imports: [MikroOrmModule.forFeature([Attractions, Hotel])],
   providers: [AttractionsResolver, AttractionsService],
 })
 export class AttractionsModule {}

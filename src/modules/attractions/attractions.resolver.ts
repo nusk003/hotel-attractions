@@ -1,15 +1,15 @@
-import { Resolver, Query, Args, Mutation, ResolveField } from '@nestjs/graphql';
+import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
 import { AttractionsService } from './attractions.service';
-import {
-  CreateAttractionsDto,
-  AttractionsDto,
-  PlaceDto,
-  CategoryPlaceDto,
-  CreateCategoryDto,
-  CategoryDto,
-  AutoCompleteDto,
-} from './dto';
 import { PlacesAdapter } from './attractions.adapter';
+import {
+  Place,
+  Attractions,
+  Hotel,
+  CategoryPlace,
+  Catalog,
+} from './attractions.entity';
+import { CreateAttraction, CreateHotelDto, UpdateAttractionArgs } from './dto';
+import { categories } from './data';
 
 @Resolver()
 export class AttractionsResolver {
@@ -17,146 +17,156 @@ export class AttractionsResolver {
   constructor(private attractionsService: AttractionsService) {
     this.placesService = new PlacesAdapter();
   }
-  @Query(() => AttractionsDto)
+  @Query(() => Attractions)
   async getAttractions(@Args('hotel_id') hotel_id: string) {
-    return this.attractionsService.getAttractions(hotel_id);
+    return this.attractionsService.getAttractionByHotel(hotel_id);
   }
-  @Mutation(() => AttractionsDto)
-  async createHotel(@Args('input') createAttractionsDto: CreateAttractionsDto) {
-    return this.attractionsService.createAttractions(createAttractionsDto);
-  }
-
-  @Mutation(() => CategoryDto)
-  async createCategory(@Args('input') createCategoryDto: CreateCategoryDto) {
-    return this.attractionsService.createCategory(createCategoryDto);
+  @Mutation(() => Hotel)
+  async createHotel(@Args('input') createAttractionsDto: CreateHotelDto) {
+    return this.attractionsService.createHotel(createAttractionsDto);
   }
 
-  @Query(() => [CategoryDto])
-  async getCategories() {
-    return this.attractionsService.getCategories();
+  @Query(() => [Hotel])
+  async getHotels() {
+    return this.attractionsService.getHotels();
   }
 
-  @Mutation(() => AttractionsDto)
-  async generateAttractions(@Args('hotel_id') hotel: string) {
-    const attraction = await this.attractionsService.getAttractions(hotel);
-    const getPlaces = await this.placesService.getPlacesByCordinate(
-      attraction.hotel.coordinate,
-    );
-
-    const categoryPlaces: CategoryPlaceDto[] = this.placesService.covertResultsToAttractionPlaces(
-      getPlaces.results,
-    );
-
-    const catalog = await this.attractionsService.getOrCreateCatalog({
-      name: 'Default Catalog',
-      categories: categoryPlaces,
-    });
-
-    console.log(catalog);
-
-    const update = this.attractionsService.updateAttractions(hotel, {
-      catalog,
-    });
-
-    return update;
+  @Query(() => Hotel)
+  async getHotel(@Args('id') id: string) {
+    return this.attractionsService.getHotel(id);
   }
 
-  @Mutation(() => CategoryDto)
-  async addKeywordToCategory(
-    @Args('categoryName') categoryName: string,
-    @Args('keywords') keyword: string,
-  ) {
-    const category = await this.attractionsService.getCategory({
-      name: categoryName,
-    });
-    let keywords = [...category.keywords];
-    if (typeof keyword === 'string') {
-      keywords.push(keyword);
-    }
+  // @Mutation(() => AttractionsDto)
+  // async generateAttractions(@Args('hotel_id') hotel: string) {
+  //   const attraction = await this.attractionsService.getAttractions(hotel);
+  //   const getPlaces = await this.placesService.getPlacesByCordinate(
+  //     attraction.hotel.coordinate,
+  //   );
 
-    // if (typeof keyword === 'object') {
-    //   keywords = keywords.concat(keyword);
-    // }
+  //   const categoryPlaces: CategoryPlaceDto[] = this.placesService.covertResultsToAttractionPlaces(
+  //     getPlaces.results,
+  //   );
 
-    return this.attractionsService.updateCategory(categoryName, { keywords });
-  }
+  //   const catalog = await this.attractionsService.getOrCreateCatalog({
+  //     name: 'Default Catalog',
+  //     categories: categoryPlaces,
+  //   });
 
-  @Query(() => [AutoCompleteDto])
-  async getAutocomplete(@Args('query') query: string) {
-    return this.placesService.getPlacesAutoComplete(query);
-  }
+  //   console.log(catalog);
 
-  @Query(() => PlaceDto)
+  //   const update = this.attractionsService.updateAttractions(hotel, {
+  //     catalog,
+  //   });
+
+  //   return update;
+  // }
+
+  // @Mutation(() => CategoryDto)
+  // async addKeywordToCategory(
+  //   @Args('categoryName') categoryName: string,
+  //   @Args('keywords') keyword: string,
+  // ) {
+  //   const category = await this.attractionsService.getCategory({
+  //     name: categoryName,
+  //   });
+  //   let keywords = [...category.keywords];
+  //   if (typeof keyword === 'string') {
+  //     keywords.push(keyword);
+  //   }
+
+  //   // if (typeof keyword === 'object') {
+  //   //   keywords = keywords.concat(keyword);
+  //   // }
+
+  //   return this.attractionsService.updateCategory(categoryName, { keywords });
+  // }
+
+  // @Query(() => [AutoCompleteDto])
+  // async getAutocomplete(@Args('query') query: string) {
+  //   return this.placesService.getPlacesAutoComplete(query);
+  // }
+
+  @Query(() => Place)
   async getPlaceDetails(@Args('place_id') place_id: string) {
     return this.placesService.getPlaceDetails(place_id);
   }
 
-  @Mutation(() => AttractionsDto)
-  async addCustomAttraction(
-    @Args('hotel_id') hotel_id: string,
-    @Args('category') categoryName: string,
-  ) {
-    const attraction = await this.attractionsService.getAttractions(hotel_id);
+  @Mutation(() => Attractions)
+  async updateAttractions(@Args() updateAttractionArgs: UpdateAttractionArgs) {}
+
+  // @Mutation(() => AttractionsDto)
+  // async addCustomAttraction(
+  //   @Args('hotel_id') hotel_id: string,
+  //   @Args('category') categoryName: string,
+  // ) {
+  //   const attraction = await this.attractionsService.getAttractions(hotel_id);
+  // }
+
+  // @Mutation(() => AttractionsDto)
+  // async updateAttractions(
+  //   @Args('place_id') place_id: string,
+  //   @Args('hotel_id') hotel_id: string,
+  //   @Args('category') categoryName: string,
+  //   @Args('note') note: string,
+  // ) {
+  //   const attraction = await this.attractionsService.getAttractions(hotel_id);
+  //   const categories = [...attraction.catalog.categories];
+  //   const index = categories.findIndex(
+  //     (category) => category.category.name === categoryName,
+  //   );
+  //   if (index > -1) {
+  //     const category = categories[index];
+  //     const places = category.places;
+  //     const placeIndex = places.findIndex((place) => place.id === place_id);
+
+  //     if (placeIndex > -1) {
+  //       const place = places[placeIndex];
+  //       const notes = [...place.notes];
+  //       notes.push(note);
+  //       place.notes = notes;
+  //       attraction.catalog.categories = categories;
+
+  //       return this.attractionsService.updateAttractions(hotel_id, {
+  //         catalog: attraction.catalog,
+  //       });
+  //     }
+  //   }
+  // }
+
+  @Query(() => Attractions)
+  async getAttractionsByHotel(@Args('hotelId') hotelId: string) {
+    return this.attractionsService.getAttractionByHotel(hotelId);
   }
 
-  @Mutation(() => AttractionsDto)
-  async updateAttractions(
-    @Args('place_id') place_id: string,
-    @Args('hotel_id') hotel_id: string,
-    @Args('category') categoryName: string,
-    @Args('note') note: string,
-  ) {
-    const attraction = await this.attractionsService.getAttractions(hotel_id);
-    const categories = [...attraction.catalog.categories];
-    const index = categories.findIndex(
-      (category) => category.category.name === categoryName,
-    );
-    if (index > -1) {
-      const category = categories[index];
-      const places = category.places;
-      const placeIndex = places.findIndex((place) => place.id === place_id);
-
-      if (placeIndex > -1) {
-        const place = places[placeIndex];
-        const notes = [...place.notes];
-        notes.push(note);
-        place.notes = notes;
-        attraction.catalog.categories = categories;
-
-        return this.attractionsService.updateAttractions(hotel_id, {
-          catalog: attraction.catalog,
-        });
-      }
-    }
-  }
-
-  @Mutation(() => AttractionsDto)
-  async generateAttractionsM2(@Args('hotel_id') hotel: string) {
-    const attraction = await this.attractionsService.getAttractions(hotel);
-    const categories = await this.getCategories();
-    const categoriesDto: CategoryDto[] = [];
-    for (let { name, keywords } of categories) {
-      categoriesDto.push({
-        name,
-        keywords,
-      });
-    }
-    const categoryPlaces: CategoryPlaceDto[] = await this.placesService.getPlacesByCategories(
-      attraction.hotel.coordinate,
-      categoriesDto,
+  @Mutation(() => Attractions)
+  async generateAttractions(@Args('hotel_id') hotelId: string) {
+    const hotel = await this.attractionsService.getHotel(hotelId);
+    const categoryPlaces: CategoryPlace[] = await this.placesService.getPlacesByCategories(
+      hotel.coordinate,
+      categories,
     );
 
-    const catalog = await this.attractionsService.getOrCreateCatalog({
+    const catalog: Catalog = {
       name: 'Default Catalog',
       categories: categoryPlaces,
-    });
+    };
 
-    console.log(catalog);
+    let attraction = await this.attractionsService.getAttractionByHotel(
+      hotel.id,
+    );
 
-    const update = this.attractionsService.updateAttractions(hotel, {
-      catalog,
-    });
+    if (attraction !== null) {
+      attraction.catalog = catalog;
+      await this.attractionsService.updateAttraction(attraction);
+    } else {
+      attraction = await this.attractionsService.createAttraction({
+        hotel: hotel,
+        catalog,
+      });
+    }
 
-    return update;
+    // await this.attractionsService.updateAttraction(attraction);
+
+    return attraction;
   }
 }

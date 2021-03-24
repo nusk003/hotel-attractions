@@ -1,19 +1,11 @@
 import {
   Client,
-  PlaceDetailsRequest,
   PlaceAutocompleteType,
-  PlaceDetailsResponse,
 } from '@googlemaps/google-maps-services-js';
 import { Coordinate } from 'src/helper/dto';
 import { groupByArray } from 'src/helper/functions';
-import {
-  PlaceDto,
-  CategoryPlaceDto,
-  CategoryDto,
-  AutoCompleteDto,
-} from './dto';
-import { geocode } from '@googlemaps/google-maps-services-js/dist/geocode/geocode';
-import { PlaceDetailsResponseData } from '@googlemaps/google-maps-services-js/dist/places/details';
+
+import { Place, Category, CategoryPlace } from './attractions.entity';
 
 export class PlacesAdapter {
   client: Client;
@@ -41,7 +33,7 @@ export class PlacesAdapter {
     return places.data;
   }
 
-  convertResponseDataToPlace = (responseData: any): PlaceDto => {
+  convertResponseDataToPlace = (responseData: any): Place => {
     const { name, place_id, vicinity, geometry, photos } = responseData;
     const { lat, lng } = geometry.location;
     const images: string[] = [];
@@ -55,7 +47,7 @@ export class PlacesAdapter {
       name,
       id: place_id,
       address: vicinity,
-      cordinate: {
+      coordinate: {
         latitude: lat,
         longitude: lng,
       },
@@ -81,14 +73,14 @@ export class PlacesAdapter {
     place_id,
     name,
     geometry,
-  }: any): PlaceDto {
+  }: any): Place {
     const { lat, lng } = geometry.location;
     return {
       address: formatted_address,
       id: place_id,
       name,
       notes: [],
-      cordinate: {
+      coordinate: {
         latitude: lat,
         longitude: lng,
       },
@@ -109,12 +101,12 @@ export class PlacesAdapter {
 
   async getPlacesByCategories(
     coordinate: Coordinate,
-    categories: CategoryDto[],
-  ): Promise<CategoryPlaceDto[]> {
-    const categoryPlaces: CategoryPlaceDto[] = [];
+    categories: Category[],
+  ): Promise<CategoryPlace[]> {
+    const categoryPlaces: CategoryPlace[] = [];
     for (let category of categories) {
       const { keywords, name } = category;
-      const places: PlaceDto[] = [];
+      const places: Place[] = [];
       console.log(keywords);
       for (let keyword of keywords) {
         const placesResults = await this.getPlacesByCordinate(
@@ -137,13 +129,13 @@ export class PlacesAdapter {
     return categoryPlaces;
   }
 
-  covertResultsToAttractionPlaces(results): CategoryPlaceDto[] {
-    const categoryPlaces: CategoryPlaceDto[] = [];
+  covertResultsToAttractionPlaces(results): CategoryPlace[] {
+    const categoryPlaces: CategoryPlace[] = [];
     const groupByCategory = groupByArray(results, (a) => a.types[0]);
     // console.log(groupByCategory);
     Object.keys(groupByCategory).map((key) => {
       const placeResults = groupByCategory[key];
-      const places: PlaceDto[] = [];
+      const places: Place[] = [];
       placeResults.map((placeResult) => {
         places.push(this.convertResponseDataToPlace(placeResult));
       });

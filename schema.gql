@@ -13,7 +13,7 @@ type Hotel {
   coordinate: Coordinate!
 }
 
-type PlaceDto {
+type Place {
   id: String!
   name: String!
   address: String!
@@ -22,56 +22,42 @@ type PlaceDto {
   photos: [String!]!
 }
 
-type AutoCompleteDto {
-  place_id: String!
-  description: String!
-}
-
-type CategoryDto {
+type Category {
   name: String!
   keywords: [String!]!
 }
 
-type CategoryPlaceDto {
-  category: CategoryDto!
-  places: [PlaceDto!]!
+type CategoryPlace {
+  category: Category!
+  places: [Place!]!
 }
 
-type CatalogDto {
-  categories: [CategoryPlaceDto!]
+type Catalog {
+  categories: [CategoryPlace!]
   name: String!
 }
 
-type AttractionsDto {
-  _id: String!
+type Attractions {
+  id: String!
   hotel: Hotel!
   name: String!
-  catalog: CatalogDto
+  catalog: Catalog
 }
 
 type Query {
-  getAttractions(hotel_id: String!): AttractionsDto!
-  getCategories: [CategoryDto!]!
-  getAutocomplete(query: String!): [AutoCompleteDto!]!
-  getPlaceDetails(place_id: String!): PlaceDto!
+  getAttractions(hotel_id: String!): Attractions!
+  getHotels: [Hotel!]!
+  getHotel(id: String!): Hotel!
+  getPlaceDetails(place_id: String!): Place!
+  getAttractionsByHotel(hotelId: String!): Attractions!
 }
 
 type Mutation {
-  createHotel(input: CreateAttractionsDto!): AttractionsDto!
-  createCategory(input: CreateCategoryDto!): CategoryDto!
-  generateAttractions(hotel_id: String!): AttractionsDto!
-  addKeywordToCategory(keywords: String!, categoryName: String!): CategoryDto!
-  addCustomAttraction(category: String!, hotel_id: String!): AttractionsDto!
-  updateAttractions(note: String!, category: String!, hotel_id: String!, place_id: String!): AttractionsDto!
-  generateAttractionsM2(hotel_id: String!): AttractionsDto!
-}
-
-input CreateAttractionsDto {
-  hotel: CreateHotelDto!
+  createHotel(input: CreateHotelDto!): Hotel!
+  generateAttractions(hotel_id: String!): Attractions!
 }
 
 input CreateHotelDto {
-  id: String!
   name: String!
   coordinate: CreateCoordinateInput!
 }
@@ -79,9 +65,4 @@ input CreateHotelDto {
 input CreateCoordinateInput {
   latitude: Float!
   longitude: Float!
-}
-
-input CreateCategoryDto {
-  name: String!
-  keywords: [String!]!
 }
