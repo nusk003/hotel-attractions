@@ -29,7 +29,6 @@ export class Hotel {
 }
 
 @ObjectType()
-@InputType()
 export class Place {
   @Field()
   id: string;
@@ -60,7 +59,6 @@ export class AutoComplete {
 }
 
 @ObjectType()
-@InputType()
 export class Category {
   @Field()
   name: string;
@@ -70,7 +68,6 @@ export class Category {
 }
 
 @ObjectType()
-@InputType()
 export class CategoryPlace {
   @Field()
   category: Category;

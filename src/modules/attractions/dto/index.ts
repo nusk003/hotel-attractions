@@ -1,14 +1,21 @@
 import { Field, InputType, ArgsType } from '@nestjs/graphql';
-import { Coordinate } from 'src/helper/dto';
-import { CategoryPlace, Hotel, Catalog, Category } from '../attractions.entity';
+import { Coordinate, CoordinateInput } from 'src/helper/dto';
+import {
+  CategoryPlace,
+  Hotel,
+  Catalog,
+  Category,
+  Place,
+} from '../attractions.entity';
 
 @InputType()
-export class CreateHotelDto {
+@ArgsType()
+export class HotelInput {
   @Field()
   name: string;
 
-  @Field(() => Coordinate)
-  coordinate: Coordinate;
+  @Field(() => CoordinateInput)
+  coordinate: CoordinateInput;
 }
 
 @InputType()
@@ -29,11 +36,68 @@ export class CreateCatalogDto {
   categories: CategoryPlace[];
 }
 
+@InputType()
+export class PlaceInput {
+  @Field()
+  id: string;
+
+  @Field()
+  name: string;
+
+  @Field()
+  address: string;
+
+  @Field(() => [String])
+  notes: string[];
+
+  @Field(() => CoordinateInput)
+  coordinate: CoordinateInput;
+
+  @Field(() => [String])
+  photos: string[];
+}
+
+@InputType()
+export class CategoryInput {
+  @Field()
+  name: string;
+
+  @Field(() => [String])
+  keywords: string[];
+}
+
+@InputType()
+export class CategoryPlaceInput {
+  @Field(() => CategoryInput)
+  category: CategoryInput;
+
+  @Field(() => [PlaceInput])
+  places: PlaceInput[];
+}
+
 @ArgsType()
 export class UpdateAttractionArgs {
   @Field()
   hotelId: string;
 
-  @Field(() => [CategoryPlace])
-  categories: CategoryPlace[];
+  @Field(() => [CategoryPlaceInput])
+  categories: CategoryPlaceInput[];
+}
+
+@ArgsType()
+export class HotelInputArgs {
+  @Field()
+  hotelId: string;
+}
+
+@ArgsType()
+export class PlaceInputArgs {
+  @Field()
+  placeId: string;
+}
+
+@ArgsType()
+export class SearchInputArgs {
+  @Field()
+  query: string;
 }

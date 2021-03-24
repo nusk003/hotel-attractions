@@ -8,7 +8,7 @@ import { mikroORMConfig } from './config/mikr-orm-config';
 @Module({
   imports: [
     GraphQLModule.forRoot({
-      autoSchemaFile: 'schema.gql',
+      autoSchemaFile: true,
     }),
     MikroOrmModule.forRoot(mikroORMConfig()),
 

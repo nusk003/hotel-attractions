@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { EntityRepository, wrap } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Attractions, Hotel } from './attractions.entity';
-import { CreateAttraction, CreateHotelDto } from './dto';
+import { CreateAttraction, HotelInput } from './dto';
 
 @Injectable()
 export class AttractionsService {
@@ -42,7 +42,7 @@ export class AttractionsService {
     return this.hotelModel.findOne(id);
   }
 
-  async createHotel(createHotel: CreateHotelDto): Promise<Hotel> {
+  async createHotel(createHotel: HotelInput): Promise<Hotel> {
     const createdHotel = new Hotel();
     wrap(createdHotel).assign(createHotel);
     await this.attractionModel.persist(createdHotel).flush();

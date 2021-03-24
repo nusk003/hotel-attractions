@@ -7,8 +7,15 @@ import {
   Hotel,
   CategoryPlace,
   Catalog,
+  AutoComplete,
 } from './attractions.entity';
-import { CreateAttraction, CreateHotelDto, UpdateAttractionArgs } from './dto';
+import {
+  HotelInput,
+  UpdateAttractionArgs,
+  HotelInputArgs,
+  SearchInputArgs,
+  PlaceInputArgs,
+} from './dto';
 import { categories } from './data';
 
 @Resolver()
@@ -18,12 +25,12 @@ export class AttractionsResolver {
     this.placesService = new PlacesAdapter();
   }
   @Query(() => Attractions)
-  async getAttractions(@Args('hotel_id') hotel_id: string) {
-    return this.attractionsService.getAttractionByHotel(hotel_id);
+  async getAttractions(@Args() { hotelId }: HotelInputArgs) {
+    return this.attractionsService.getAttractionByHotel(hotelId);
   }
   @Mutation(() => Hotel)
-  async createHotel(@Args('input') createAttractionsDto: CreateHotelDto) {
-    return this.attractionsService.createHotel(createAttractionsDto);
+  async createHotel(@Args() createHotel: HotelInput) {
+    return this.attractionsService.createHotel(createHotel);
   }
 
   @Query(() => [Hotel])
@@ -32,8 +39,8 @@ export class AttractionsResolver {
   }
 
   @Query(() => Hotel)
-  async getHotel(@Args('id') id: string) {
-    return this.attractionsService.getHotel(id);
+  async getHotel(@Args() { hotelId }: HotelInputArgs) {
+    return this.attractionsService.getHotel(hotelId);
   }
 
   // @Mutation(() => AttractionsDto)
@@ -61,85 +68,35 @@ export class AttractionsResolver {
   //   return update;
   // }
 
-  // @Mutation(() => CategoryDto)
-  // async addKeywordToCategory(
-  //   @Args('categoryName') categoryName: string,
-  //   @Args('keywords') keyword: string,
-  // ) {
-  //   const category = await this.attractionsService.getCategory({
-  //     name: categoryName,
-  //   });
-  //   let keywords = [...category.keywords];
-  //   if (typeof keyword === 'string') {
-  //     keywords.push(keyword);
-  //   }
-
-  //   // if (typeof keyword === 'object') {
-  //   //   keywords = keywords.concat(keyword);
-  //   // }
-
-  //   return this.attractionsService.updateCategory(categoryName, { keywords });
-  // }
-
-  // @Query(() => [AutoCompleteDto])
-  // async getAutocomplete(@Args('query') query: string) {
-  //   return this.placesService.getPlacesAutoComplete(query);
-  // }
+  @Query(() => [AutoComplete])
+  async searchPlaces(@Args() { query }: SearchInputArgs) {
+    return this.placesService.getPlacesAutoComplete(query);
+  }
 
   @Query(() => Place)
-  async getPlaceDetails(@Args('place_id') place_id: string) {
-    return this.placesService.getPlaceDetails(place_id);
+  async getPlacebyPlaceID(@Args() { placeId }: PlaceInputArgs) {
+    return this.placesService.getPlaceDetails(placeId);
   }
 
   @Mutation(() => Attractions)
-  async updateAttractions(@Args() updateAttractionArgs: UpdateAttractionArgs) {}
-
-  // @Mutation(() => AttractionsDto)
-  // async addCustomAttraction(
-  //   @Args('hotel_id') hotel_id: string,
-  //   @Args('category') categoryName: string,
-  // ) {
-  //   const attraction = await this.attractionsService.getAttractions(hotel_id);
-  // }
-
-  // @Mutation(() => AttractionsDto)
-  // async updateAttractions(
-  //   @Args('place_id') place_id: string,
-  //   @Args('hotel_id') hotel_id: string,
-  //   @Args('category') categoryName: string,
-  //   @Args('note') note: string,
-  // ) {
-  //   const attraction = await this.attractionsService.getAttractions(hotel_id);
-  //   const categories = [...attraction.catalog.categories];
-  //   const index = categories.findIndex(
-  //     (category) => category.category.name === categoryName,
-  //   );
-  //   if (index > -1) {
-  //     const category = categories[index];
-  //     const places = category.places;
-  //     const placeIndex = places.findIndex((place) => place.id === place_id);
-
-  //     if (placeIndex > -1) {
-  //       const place = places[placeIndex];
-  //       const notes = [...place.notes];
-  //       notes.push(note);
-  //       place.notes = notes;
-  //       attraction.catalog.categories = categories;
-
-  //       return this.attractionsService.updateAttractions(hotel_id, {
-  //         catalog: attraction.catalog,
-  //       });
-  //     }
-  //   }
-  // }
+  async updateAttractions(
+    @Args() { hotelId, categories }: UpdateAttractionArgs,
+  ): Promise<Attractions> {
+    const attraction = await this.attractionsService.getAttractionByHotel(
+      hotelId,
+    );
+    attraction.catalog.categories = categories;
+    await this.attractionsService.updateAttraction(attraction);
+    return attraction;
+  }
 
   @Query(() => Attractions)
-  async getAttractionsByHotel(@Args('hotelId') hotelId: string) {
+  async getAttractionsByHotel(@Args() { hotelId }: HotelInputArgs) {
     return this.attractionsService.getAttractionByHotel(hotelId);
   }
 
   @Mutation(() => Attractions)
-  async generateAttractions(@Args('hotel_id') hotelId: string) {
+  async generateAttractions(@Args() { hotelId }: HotelInputArgs) {
     const hotel = await this.attractionsService.getHotel(hotelId);
     const categoryPlaces: CategoryPlace[] = await this.placesService.getPlacesByCategories(
       hotel.coordinate,
@@ -164,8 +121,6 @@ export class AttractionsResolver {
         catalog,
       });
     }
-
-    // await this.attractionsService.updateAttraction(attraction);
 
     return attraction;
   }
